@@ -2,6 +2,7 @@ package com.ecommerce.project.controller;
 
 import com.ecommerce.project.model.Category;
 import com.ecommerce.project.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,26 +15,18 @@ import java.util.List;
 @RequestMapping("/api")
 public class CategoryController {
 
-    //Field injection by springboot
     @Autowired
     private CategoryService categoryService;
 
-    /**
-    //Constructor Injection by springboot
-//    public CategoryController(CategoryService categoryService){
-//        this.categoryService = categoryService;
-//    }
-     */
 
     @GetMapping("/public/categories")
-   // @RequestMapping(value = "/public/categories", method = RequestMethod.GET)
     public ResponseEntity<List<Category>> getAllCategories(){
         List<Category> categories = categoryService.getAllCategories();
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @PostMapping("/public/categories")
-    public ResponseEntity<String> createCategory(@RequestBody Category category){
+    public ResponseEntity<String> createCategory(@Valid @RequestBody Category category){
         categoryService.createCategory(category);
         return new ResponseEntity<>("Category added Successfully", HttpStatus.CREATED);
     }
@@ -42,8 +35,6 @@ public class CategoryController {
     public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId){
         try {
             String status = categoryService.deleteCategory(categoryId);
-          //  return new ResponseEntity<>(status, HttpStatus.OK);
-          //  return ResponseEntity.ok(status);
             return ResponseEntity.status(HttpStatus.OK).body(status);
         } catch (ResponseStatusException ex){
             return new ResponseEntity<>(ex.getReason(), ex.getStatusCode());
@@ -51,7 +42,7 @@ public class CategoryController {
     }
 
     @PutMapping("/public/categories/{categoryId}")
-    public ResponseEntity<String> updateCategory(@RequestBody Category category,
+    public ResponseEntity<String> updateCategory(@Valid @RequestBody Category category,
                                                  @PathVariable Long categoryId){
         try{
             Category updatedCategory = categoryService.updateCategory(category, categoryId);
