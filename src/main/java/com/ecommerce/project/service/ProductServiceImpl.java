@@ -26,10 +26,11 @@ public class ProductServiceImpl implements ProductService{
     private ModelMapper modelMapper;
 
     @Override
-    public ProductDTO addProduct(Long categoryId, Product product) {
+    public ProductDTO addProduct(Long categoryId, ProductDTO productDTO) {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("category", "categoryId", categoryId));
+        Product product = modelMapper.map(productDTO, Product.class);
         product.setImage("Default");
         product.setCategory(category);
         double specialPrice = product.getPrice() -(product.getDiscount()*0.01) * product.getPrice();
@@ -83,11 +84,12 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductDTO updateProduct(Long productId, Product product) {
+    public ProductDTO updateProduct(Long productId, ProductDTO productDTO) {
         // Get the existing product from DB
         Product productFromDb = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
 
+        Product product = modelMapper.map(productDTO, Product.class);
         // Update the product info with user shared in request body
         productFromDb.setProductName(product.getProductName());
         productFromDb.setDescription(product.getDescription());
@@ -99,5 +101,14 @@ public class ProductServiceImpl implements ProductService{
         // Save to Database
         Product savedProduct = productRepository.save(productFromDb);
         return modelMapper.map(savedProduct, ProductDTO.class);
+    }
+
+    @Override
+    public ProductDTO deleteProduct(Long productId) {
+       Product productFromDB = productRepository.findById(productId)
+               .orElseThrow(() -> new ResourceNotFoundException("Product", "ProductId", productId));
+
+       productRepository.delete(productFromDB);
+       return modelMapper.map(productFromDB, ProductDTO.class);
     }
 }
