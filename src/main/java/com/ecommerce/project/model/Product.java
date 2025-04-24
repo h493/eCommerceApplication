@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -39,4 +42,10 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "seller_id")
     private User user;
+
+    //One Product → can appear in many CartItems.
+    //The mappedBy = "product" tells JPA:
+    //"The product field inside CartItem is the owner of the relationship."
+    @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    private List<CartItem> products = new ArrayList<>();
 }
